@@ -1,0 +1,26 @@
+# Java backend
+/backend/node_modules/
+/backend/.env
+/backend/.env.*
+/backend/.idea/
+/backend/.vscode/
+/backend/npm-debug.log*
+/backend/yarn-debug.log*
+/backend/yarn-error.log*
+
+
+# Node.js frontend
+/frontend/.next/
+/frontend/node_modules/
+/frontend/.idea/
+/frontend/.vscode/
+/frontend/npm-debug.log*
+/frontend/yarn-debug.log*
+/frontend/yarn-error.log*
+
+# OS/Editor
+.DS_Store
+Thumbs.db
+
+# General
+*.log
