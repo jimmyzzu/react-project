@@ -6,23 +6,40 @@ function TaskForm({ onSubmit, editing, onCancel }) {
   const [form, setForm] = useState(initialState);
 
   useEffect(() => {
+    console.log('TaskForm useEffect 触发，editing:', editing);
     if (editing) {
+      console.log('设置编辑模式，表单数据:', editing);
       setForm(editing);
     } else {
+      console.log('设置创建模式，重置表单');
       setForm(initialState);
     }
   }, [editing]);
 
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    console.log('表单字段变化:', { name, value });
+    setForm({ ...form, [name]: value });
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!form.title) return;
+    console.log('表单提交，数据:', form);
+    if (!form.title) {
+      console.warn('表单验证失败：标题不能为空');
+      return;
+    }
     onSubmit(form);
+    console.log('表单提交完成，重置表单');
     setForm(initialState);
   };
+
+  const handleCancel = () => {
+    console.log('取消编辑操作');
+    onCancel();
+  };
+
+  console.log('TaskForm 渲染，当前表单状态:', form);
 
   return (
     <form className="flex flex-col gap-2 bg-gray-50 p-4 rounded shadow" onSubmit={handleSubmit}>
@@ -55,7 +72,7 @@ function TaskForm({ onSubmit, editing, onCancel }) {
           {editing ? '保存' : '创建'}
         </button>
         {editing && (
-          <button className="bg-gray-400 text-white px-4 py-1 rounded" type="button" onClick={onCancel}>
+          <button className="bg-gray-400 text-white px-4 py-1 rounded" type="button" onClick={handleCancel}>
             取消
           </button>
         )}
