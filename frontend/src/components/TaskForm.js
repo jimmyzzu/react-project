@@ -42,37 +42,50 @@ function TaskForm({ onSubmit, editing, onCancel }) {
   console.log('TaskForm 渲染，当前表单状态:', form);
 
   return (
-    <form className="flex flex-col gap-2 bg-gray-50 p-4 rounded shadow" onSubmit={handleSubmit}>
-      <input
-        className="border p-2 rounded"
-        name="title"
-        placeholder="任务标题"
-        value={form.title}
-        onChange={handleChange}
-        required
-      />
-      <textarea
-        className="border p-2 rounded"
-        name="description"
-        placeholder="任务描述"
-        value={form.description}
-        onChange={handleChange}
-      />
-      <select
-        className="border p-2 rounded"
-        name="status"
-        value={form.status}
-        onChange={handleChange}
-      >
-        <option value="pending">待办</option>
-        <option value="completed">已完成</option>
-      </select>
+    <form className="flex flex-col gap-3" onSubmit={handleSubmit}>
+      <div className="flex flex-col gap-1">
+        <label className="text-sm text-subtext">任务标题</label>
+        <input
+          className="border border-border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-200"
+          name="title"
+          placeholder="任务标题"
+          value={form.title}
+          onChange={handleChange}
+          required
+        />
+      </div>
+
+      <div className="flex flex-col gap-1">
+        <label className="text-sm text-subtext">任务描述</label>
+        <textarea
+          className="border border-border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-200"
+          name="description"
+          placeholder="任务描述"
+          value={form.description}
+          onChange={handleChange}
+          rows={4}
+        />
+      </div>
+
+      <div className="flex flex-col gap-1">
+        <label className="text-sm text-subtext">任务状态</label>
+        <select
+          className="border border-border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-200"
+          name="status"
+          value={form.status}
+          onChange={handleChange}
+        >
+          <option value="pending">待办</option>
+          <option value="completed">已完成</option>
+        </select>
+      </div>
+
       <div className="flex gap-2 mt-2">
-        <button className="bg-blue-600 text-white px-4 py-1 rounded" type="submit">
+        <button className="bg-primary hover:bg-primary-hover text-white px-4 py-2 rounded-md shadow-sm" type="submit">
           {editing ? '保存' : '创建'}
         </button>
         {editing && (
-          <button className="bg-gray-400 text-white px-4 py-1 rounded" type="button" onClick={handleCancel}>
+          <button className="bg-gray-400 text-white px-4 py-2 rounded-md" type="button" onClick={handleCancel}>
             取消
           </button>
         )}

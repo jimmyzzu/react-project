@@ -17,28 +17,40 @@ function TaskList({ tasks, onEdit, onDelete }) {
     }
   };
 
+  const StatusChip = ({ status }) => (
+    <span className={`text-xs px-2 py-1 rounded-sm border ${
+      status === 'completed' 
+        ? 'bg-green-50 text-green-700 border-green-200' 
+        : 'bg-slate-100 text-slate-700 border-slate-200'
+    }`}>
+      {status === 'completed' ? '已完成' : '待办'}
+    </span>
+  );
+
   return (
-    <div className="mt-6">
+    <div className="mt-2">
       {tasks.length === 0 ? (
-        <div className="text-gray-500">暂无任务</div>
+        <div className="text-subtext text-sm">暂无任务</div>
       ) : (
-        <ul>
+        <ul className="space-y-3">
           {tasks.map((task) => (
-            <li key={task.id} className="flex items-center justify-between bg-white shadow p-3 mb-2 rounded">
-              <div>
-                <div className="font-semibold">{task.title}</div>
-                <div className="text-sm text-gray-500">{task.description}</div>
-                <div className="text-xs text-blue-500">状态：{task.status}</div>
+            <li key={task.id} className="bg-card rounded-md shadow-md p-4 hover:shadow-lg transition">
+              <div className="flex items-start justify-between">
+                <div className="pr-4">
+                  <div className="font-semibold text-text text-base">{task.title}</div>
+                  <div className="text-sm text-subtext mt-1">{task.description}</div>
+                </div>
+                <StatusChip status={task.status} />
               </div>
-              <div className="flex gap-2">
+              <div className="flex gap-3 mt-3">
                 <button 
-                  className="text-blue-600" 
+                  className="text-primary hover:text-primary-hover"
                   onClick={() => handleEdit(task)}
                 >
                   编辑
                 </button>
                 <button 
-                  className="text-red-600" 
+                  className="text-danger hover:opacity-90"
                   onClick={() => handleDelete(task.id)}
                 >
                   删除

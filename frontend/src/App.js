@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import TaskList from './components/TaskList';
 import TaskForm from './components/TaskForm';
+import Toolbar from './components/Toolbar';
 import api from './utils/api';
 
 function App() {
@@ -60,6 +61,7 @@ function App() {
   const handleEdit = (task) => {
     console.log('开始编辑任务:', task);
     setEditing(task);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleCancelEdit = () => {
@@ -70,18 +72,30 @@ function App() {
   console.log('App 组件渲染，当前状态:', { tasksCount: tasks.length, editing: editing?.id });
 
   return (
-    <div className="max-w-2xl mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">任务管理</h1>
-      <TaskForm 
-        onSubmit={editing ? (task) => handleUpdate(editing.id, task) : handleCreate} 
-        editing={editing} 
-        onCancel={handleCancelEdit} 
-      />
-      <TaskList 
-        tasks={tasks} 
-        onEdit={handleEdit} 
-        onDelete={handleDelete} 
-      />
+    <div className="min-h-screen bg-bg">
+      <div className="max-w-5xl mx-auto p-4 md:p-6">
+        <Toolbar onAdd={() => setEditing({ title: '', description: '', status: 'pending' })} />
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+          <div className="bg-card rounded-lg shadow-md p-4 md:p-6">
+            <h2 className="text-xl font-semibold text-text mb-4">{editing ? '编辑任务' : '创建任务'}</h2>
+            <TaskForm 
+              onSubmit={editing ? (task) => handleUpdate(editing.id, task) : handleCreate} 
+              editing={editing} 
+              onCancel={handleCancelEdit} 
+            />
+          </div>
+
+          <div className="bg-card rounded-lg shadow-md p-4 md:p-6">
+            <h2 className="text-xl font-semibold text-text mb-4">任务列表</h2>
+            <TaskList 
+              tasks={tasks} 
+              onEdit={handleEdit} 
+              onDelete={handleDelete} 
+            />
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
