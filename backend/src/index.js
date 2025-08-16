@@ -90,6 +90,84 @@ app.delete('/api/tasks/:id', asyncHandler(async (req, res) => {
   res.json({ success: true });
 }));
 
+// 获取任务统计数据
+app.get('/api/tasks/stats', asyncHandler(async (req, res) => {
+  const [totalResult] = await pool.query('SELECT COUNT(*) as total FROM tasks');
+  const [completedResult] = await pool.query('SELECT COUNT(*) as completed FROM tasks WHERE status = "completed"');
+  const [pendingResult] = await pool.query('SELECT COUNT(*) as pending FROM tasks WHERE status = "pending"');
+  const [overdueResult] = await pool.query('SELECT COUNT(*) as overdue FROM tasks WHERE status = "overdue"');
+  
+  const stats = {
+    total: totalResult[0].total,
+    completed: completedResult[0].completed,
+    pending: pendingResult[0].pending,
+    overdue: overdueResult[0].overdue
+  };
+  
+  res.json(stats);
+}));
+
+// 获取最近任务
+app.get('/api/tasks/recent', asyncHandler(async (req, res) => {
+  const limit = parseInt(req.query.limit) || 5;
+  const [rows] = await pool.query(
+    'SELECT id, title, status, priority, category, created_at, completed_at, due_date FROM tasks ORDER BY created_at DESC LIMIT ?',
+    [limit]
+  );
+  
+  res.json(rows);
+}));
+
+// 获取任务分类分布
+app.get('/api/tasks/categories', asyncHandler(async (req, res) => {
+  const [rows] = await pool.query(
+    'SELECT category, COUNT(*) as count FROM tasks GROUP BY category ORDER BY count DESC'
+  );
+  
+  const total = rows.reduce((sum, row) => sum + row.count, 0);
+  const distribution = rows.map(row => ({
+    name: row.category,
+    value: Math.round((row.count / total) * 100),
+    count: row.count
+  }));
+  
+  res.json(distribution);
+}));
+
+// 获取本周进度数据
+app.get('/api/tasks/weekly-progress', asyncHandler(async (req, res) => {
+  // 获取最近7天的任务完成情况
+  const [rows] = await pool.query(`
+    SELECT 
+      DATE(created_at) as date,
+      COUNT(*) as total,
+      SUM(CASE WHEN status = 'completed' THEN 1 ELSE 0 END) as completed
+    FROM tasks 
+    WHERE created_at >= DATE_SUB(CURDATE(), INTERVAL 6 DAY)
+    GROUP BY DATE(created_at)
+    ORDER BY date
+  `);
+  
+  // 填充缺失的日期
+  const progress = [];
+  const today = new Date();
+  
+  for (let i = 6; i >= 0; i--) {
+    const date = new Date(today);
+    date.setDate(date.getDate() - i);
+    const dateStr = date.toISOString().split('T')[0];
+    
+    const dayData = rows.find(row => row.date.toISOString().split('T')[0] === dateStr);
+    if (dayData && dayData.total > 0) {
+      progress.push(Math.round((dayData.completed / dayData.total) * 100));
+    } else {
+      progress.push(0);
+    }
+  }
+  
+  res.json(progress);
+}));
+
 // 集中式错误处理中间件（应放在路由之后）
 app.use((err, req, res, next) => {
   console.error('请求处理出错:', err);

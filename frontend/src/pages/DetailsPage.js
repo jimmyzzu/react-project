@@ -1,9 +1,112 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { tasksApi } from '../utils/api';
 
 function DetailsPage() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('tasks');
+  
+  // 数据状态
+  const [taskStats, setTaskStats] = useState({
+    total: 0,
+    completed: 0,
+    pending: 0,
+    overdue: 0
+  });
+  
+  const [recentTasks, setRecentTasks] = useState([]);
+  
+  const [analyticsData, setAnalyticsData] = useState({
+    weeklyProgress: [],
+    categoryDistribution: []
+  });
+  
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // 获取任务统计数据
+  const fetchTaskStats = async () => {
+    try {
+      const response = await tasksApi.getStats();
+      setTaskStats(response.data);
+    } catch (err) {
+      console.error('获取任务统计失败:', err);
+      setError('获取任务统计失败');
+    }
+  };
+
+  // 获取最近任务
+  const fetchRecentTasks = async () => {
+    try {
+      const response = await tasksApi.getRecent(4);
+      setRecentTasks(response.data);
+    } catch (err) {
+      console.error('获取最近任务失败:', err);
+      setError('获取最近任务失败');
+    }
+  };
+
+  // 获取分类分布数据
+  const fetchCategoryDistribution = async () => {
+    try {
+      const response = await tasksApi.getCategories();
+      const categories = response.data.map(cat => ({
+        ...cat,
+        color: getCategoryColor(cat.name)
+      }));
+      setAnalyticsData(prev => ({ ...prev, categoryDistribution: categories }));
+    } catch (err) {
+      console.error('获取分类分布失败:', err);
+      setError('获取分类分布失败');
+    }
+  };
+
+  // 获取每周进度数据
+  const fetchWeeklyProgress = async () => {
+    try {
+      const response = await tasksApi.getWeeklyProgress();
+      setAnalyticsData(prev => ({ ...prev, weeklyProgress: response.data }));
+    } catch (err) {
+      console.error('获取每周进度失败:', err);
+      setError('获取每周进度失败');
+    }
+  };
+
+  // 根据分类名称获取颜色
+  const getCategoryColor = (categoryName) => {
+    const colorMap = {
+      '开发任务': 'bg-blue-500',
+      '设计任务': 'bg-green-500',
+      '测试任务': 'bg-yellow-500',
+      '文档任务': 'bg-purple-500',
+      '管理任务': 'bg-indigo-500'
+    };
+    return colorMap[categoryName] || 'bg-gray-500';
+  };
+
+  // 初始化数据
+  useEffect(() => {
+    const fetchAllData = async () => {
+      setLoading(true);
+      setError(null);
+      
+      try {
+        await Promise.all([
+          fetchTaskStats(),
+          fetchRecentTasks(),
+          fetchCategoryDistribution(),
+          fetchWeeklyProgress()
+        ]);
+      } catch (err) {
+        console.error('数据获取失败:', err);
+        setError('数据获取失败，请稍后重试');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAllData();
+  }, []);
 
   const handleBack = () => {
     navigate('/');
@@ -13,30 +116,35 @@ function DetailsPage() {
     navigate('/main');
   };
 
-  // 模拟数据
-  const taskStats = {
-    total: 24,
-    completed: 18,
-    pending: 4,
-    overdue: 2
-  };
+  // 渲染加载状态
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">正在加载数据...</p>
+        </div>
+      </div>
+    );
+  }
 
-  const recentTasks = [
-    { id: 1, title: '完成项目文档', status: 'completed', priority: 'high' },
-    { id: 2, title: '代码审查', status: 'pending', priority: 'medium' },
-    { id: 3, title: '团队会议', status: 'pending', priority: 'low' },
-    { id: 4, title: '系统测试', status: 'overdue', priority: 'high' }
-  ];
-
-  const analyticsData = {
-    weeklyProgress: [65, 78, 82, 75, 90, 85, 88],
-    categoryDistribution: [
-      { name: '开发任务', value: 45, color: 'bg-blue-500' },
-      { name: '设计任务', value: 25, color: 'bg-green-500' },
-      { name: '测试任务', value: 20, color: 'bg-yellow-500' },
-      { name: '文档任务', value: 10, color: 'bg-purple-500' }
-    ]
-  };
+  // 渲染错误状态
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-red-500 text-6xl mb-4">⚠️</div>
+          <p className="text-red-600 text-lg mb-4">{error}</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            重新加载
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   const renderTaskManagement = () => (
     <div className="space-y-6">
@@ -75,8 +183,9 @@ function DetailsPage() {
                   task.priority === 'medium' ? 'bg-yellow-100 text-yellow-800' :
                   'bg-green-100 text-green-800'
                 }`}>
-                  {task.priority}
+                  {task.priority === 'high' ? '高' : task.priority === 'medium' ? '中' : '低'}
                 </span>
+                <span className="text-xs text-gray-500">{task.category}</span>
               </div>
               <span className={`text-sm ${
                 task.status === 'completed' ? 'text-green-600' :
@@ -121,7 +230,7 @@ function DetailsPage() {
               <div className="flex items-center space-x-2">
                 <div className="w-24 bg-gray-200 rounded-full h-2">
                   <div 
-                    className={`h-2 rounded-full ${category.color.replace('bg-', 'bg-')}`}
+                    className={`h-2 rounded-full ${category.color}`}
                     style={{ width: `${category.value}%` }}
                   ></div>
                 </div>
