@@ -4,12 +4,14 @@ import com.example.backendjava.dto.CategoryDistributionDto;
 import com.example.backendjava.entity.Task;
 import com.example.backendjava.repository.projection.WeeklyProgressProjection;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Page;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
+import java.util.Collection;
 import java.util.List;
 
 @Repository
@@ -18,6 +20,16 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
 
     @Query("SELECT t FROM Task t ORDER BY t.createdAt DESC")
     List<Task> findRecent(Pageable pageable);
+
+    List<Task> findByOwnerAndReviewStatus(String owner, String reviewStatus);
+
+    List<Task> findByReviewStatus(String reviewStatus);
+
+    List<Task> findByReviewStatusIn(Collection<String> reviewStatuses);
+
+    Page<Task> findByReviewStatus(String reviewStatus, Pageable pageable);
+
+    long countByReviewStatus(String reviewStatus);
 
     @Query("SELECT new com.example.backendjava.dto.CategoryDistributionDto(t.category, COUNT(t)) " +
             "FROM Task t GROUP BY t.category ORDER BY COUNT(t) DESC")

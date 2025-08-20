@@ -5,7 +5,9 @@ import com.example.backendjava.dto.TaskStatsDto;
 import com.example.backendjava.entity.Task;
 import com.example.backendjava.repository.TaskRepository;
 import com.example.backendjava.repository.projection.WeeklyProgressProjection;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -23,8 +25,39 @@ public class TaskService {
         return repository.findAll();
     }
 
+    public Page<Task> pageAll(int pageNo, int pageSize) {
+        return repository.findAll(PageRequest.of(Math.max(pageNo - 1, 0), pageSize,
+                Sort.by(Sort.Order.desc("updatedAt"), Sort.Order.desc("createdAt"))));
+    }
+
+    public long countAll() {
+        return repository.count();
+    }
+
+    public List<Task> listByOwnerApproved(String owner) {
+        return repository.findByOwnerAndReviewStatus(owner, "approved");
+    }
+
+    public List<Task> listByReviewStatus(String reviewStatus) {
+        return repository.findByReviewStatus(reviewStatus);
+    }
+
+    public List<Task> listForReviewerQueue() {
+        return repository.findByReviewStatusIn(List.of("submitted", "processing"));
+    }
+
+    public Page<Task> pageReviewerByReviewStatus(String reviewStatus, int pageNo, int pageSize) {
+        return repository.findByReviewStatus(reviewStatus, PageRequest.of(Math.max(pageNo - 1, 0), pageSize));
+    }
+
+    public long countByReviewStatus(String reviewStatus) {
+        return repository.countByReviewStatus(reviewStatus);
+    }
+
     public Task create(Task task) {
         task.setId(null);
+        if (task.getOwner() == null) task.setOwner("");
+        task.setReviewStatus("submitted");
         return repository.save(task);
     }
 

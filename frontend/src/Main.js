@@ -2,18 +2,24 @@ import React, { useEffect, useState } from 'react';
 import TaskList from './components/TaskList';
 import TaskForm from './components/TaskForm';
 import Toolbar from './components/Toolbar';
-import api from './utils/api';
+import api, { tasksApi } from './utils/api';
+import Pagination from './components/common/Pagination';
 
 function Main() {
   const [tasks, setTasks] = useState([]);
   const [editing, setEditing] = useState(null);
+  const [pageNo, setPageNo] = useState(1);
+  const [total, setTotal] = useState(0);
+  const pageSize = 5;
 
-  const fetchTasks = async () => {
+  const fetchTasks = async (page = 1) => {
     console.log('开始获取任务列表...');
     try {
-      const res = await api.get('/tasks');
+      const res = await tasksApi.getAllPaged({ pageNo: page, pageSize });
       console.log('获取任务列表成功:', res.data);
-      setTasks(res.data);
+      setTasks(res.data?.items || []);
+      setTotal(res.data?.total || 0);
+      setPageNo(res.data?.pageNo || page);
     } catch (error) {
       console.error('获取任务列表失败:', error);
     }
@@ -21,15 +27,15 @@ function Main() {
 
   useEffect(() => {
     console.log('App 组件挂载，初始化任务列表');
-    fetchTasks();
+    fetchTasks(1);
   }, []);
 
   const handleCreate = async (task) => {
     console.log('创建新任务:', task);
     try {
-      await api.post('/tasks', task);
+      await tasksApi.create(task)
       console.log('任务创建成功');
-      fetchTasks();
+      fetchTasks(pageNo);
     } catch (error) {
       console.error('任务创建失败:', error);
     }
@@ -41,7 +47,7 @@ function Main() {
       await api.put(`/tasks/${id}`, task);
       console.log('任务更新成功');
       setEditing(null);
-      fetchTasks();
+      fetchTasks(pageNo);
     } catch (error) {
       console.error('任务更新失败:', error);
     }
@@ -52,7 +58,7 @@ function Main() {
     try {
       await api.delete(`/tasks/${id}`);
       console.log('任务删除成功');
-      fetchTasks();
+      fetchTasks(pageNo);
     } catch (error) {
       console.error('任务删除失败:', error);
     }
@@ -93,6 +99,9 @@ function Main() {
               onEdit={handleEdit} 
               onDelete={handleDelete} 
             />
+            <div className="mt-3">
+              <Pagination pageNo={pageNo} pageSize={pageSize} total={total} onChange={(n) => fetchTasks(n)} />
+            </div>
           </div>
         </div>
       </div>

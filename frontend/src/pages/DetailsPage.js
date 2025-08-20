@@ -23,6 +23,7 @@ function DetailsPage() {
   
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   // 获取任务统计数据
   const fetchTaskStats = async () => {
@@ -115,6 +116,16 @@ function DetailsPage() {
   const handleGoToMain = () => {
     navigate('/main');
   };
+
+  const handleGoToApprovals = () => {
+    navigate('/approvals');
+  };
+
+  const handleGoToActivity = () => {
+    navigate('/activity');
+  };
+
+  const toggleMenu = () => setMenuOpen(prev => !prev);
 
   // 渲染加载状态
   if (loading) {
@@ -317,12 +328,32 @@ function DetailsPage() {
           
           <h1 className="text-2xl font-bold text-gray-800">功能详情</h1>
           
-          <button
-            onClick={handleGoToMain}
-            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-          >
-            进入主应用
-          </button>
+          <div className="relative inline-flex" tabIndex={0} onBlur={() => setTimeout(() => setMenuOpen(false), 100)}>
+            <button
+              onClick={handleGoToMain}
+              className="bg-blue-600 text-white px-4 py-2 rounded-l-lg hover:bg-blue-700 transition-colors"
+              title="进入主应用"
+            >
+              进入主应用
+            </button>
+            <button
+              onClick={toggleMenu}
+              className="bg-blue-600 text-white px-2 py-2 rounded-r-lg hover:bg-blue-700 transition-colors"
+              aria-haspopup="menu"
+              aria-expanded={menuOpen}
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+            {menuOpen && (
+              <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow z-10 py-1">
+                <button onClick={handleGoToMain} className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">进入主应用</button>
+                <button onClick={handleGoToApprovals} className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">进入审核页面</button>
+                <button onClick={handleGoToActivity} className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">进入Kafka发送页面</button>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* 标签页导航 */}

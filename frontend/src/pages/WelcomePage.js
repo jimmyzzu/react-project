@@ -4,9 +4,9 @@ import { useNavigate } from 'react-router-dom';
 function WelcomePage() {
   const navigate = useNavigate();
 
-  const handleNext = () => {
-    navigate('/details');
-  };
+  const handleNext = () => { navigate('/details'); };
+  const goCalendar = () => { navigate('/calendar'); };
+  const goKanban = () => { navigate('/kanban'); };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
@@ -41,12 +41,17 @@ function WelcomePage() {
               </div>
             </div>
             
-            <button
-              onClick={handleNext}
-              className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold py-4 px-8 rounded-xl text-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
-            >
-              下一步 →
-            </button>
+            <div className="flex flex-wrap gap-3 justify-center">
+              <button onClick={handleNext} className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold py-3 px-6 rounded-xl text-base transition-all shadow">
+                功能详情 →
+              </button>
+              <button onClick={goCalendar} className="bg-white border border-gray-200 hover:bg-gray-50 text-gray-800 font-semibold py-3 px-6 rounded-xl text-base transition-all shadow">
+                日历视图
+              </button>
+              <button onClick={goKanban} className="bg-white border border-gray-200 hover:bg-gray-50 text-gray-800 font-semibold py-3 px-6 rounded-xl text-base transition-all shadow">
+                看板视图
+              </button>
+            </div>
           </div>
         </div>
       </div>
