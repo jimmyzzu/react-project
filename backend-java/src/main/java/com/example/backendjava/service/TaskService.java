@@ -1,6 +1,15 @@
 package com.example.backendjava.service;
 
 import com.example.backendjava.dto.CategoryDistributionDto;
+import com.example.backendjava.test.RedisConnectionTest;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.kafka.core.KafkaTemplate;
+import static com.example.backendjava.config.CacheKeys.CATEGORIES_DISTRIBUTION;
+import static com.example.backendjava.kafka.Topics.CACHE_DOUBLE_DELETE;
 import com.example.backendjava.dto.TaskStatsDto;
 import com.example.backendjava.entity.Task;
 import com.example.backendjava.repository.TaskRepository;
@@ -13,12 +22,25 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.util.*;
 
+@Slf4j
 @Service
 public class TaskService {
     private final TaskRepository repository;
+    private final StringRedisTemplate redisTemplate;
+    private final ObjectMapper objectMapper;
+    private final KafkaTemplate<String, String> kafkaTemplate;
 
-    public TaskService(TaskRepository repository) {
+    @Autowired
+    RedisConnectionTest redisConnectionTest;
+
+    public TaskService(TaskRepository repository,
+                       StringRedisTemplate redisTemplate,
+                       ObjectMapper objectMapper,
+                       KafkaTemplate<String, String> kafkaTemplate) {
         this.repository = repository;
+        this.redisTemplate = redisTemplate;
+        this.objectMapper = objectMapper;
+        this.kafkaTemplate = kafkaTemplate;
     }
 
     public List<Task> list() {
@@ -77,6 +99,10 @@ public class TaskService {
     public boolean delete(Long id) {
         if (!repository.existsById(id)) return false;
         repository.deleteById(id);
+        try {
+            redisTemplate.delete(CATEGORIES_DISTRIBUTION);
+            kafkaTemplate.send(CACHE_DOUBLE_DELETE, CATEGORIES_DISTRIBUTION);
+        } catch (Exception ignored) {}
         return true;
     }
 
@@ -93,12 +119,23 @@ public class TaskService {
     }
 
     public List<CategoryDistributionDto> categories() {
+        redisConnectionTest.testConnection();
+        try {
+            String cached = redisTemplate.opsForValue().get(CATEGORIES_DISTRIBUTION);
+            if (cached != null && !cached.isBlank()) {
+                return objectMapper.readValue(cached, new TypeReference<List<CategoryDistributionDto>>(){});
+            }
+        } catch (Exception ignored) {}
+
         List<CategoryDistributionDto> rows = repository.groupByCategory();
         long totalCount = rows.stream().mapToLong(CategoryDistributionDto::getCount).sum();
         rows.forEach(r -> {
             if (r.getCount() == 0) r.setValue(0);
             else r.setValue((int) Math.round(r.getCount() * 100.0 / totalCount));
         });
+        try {
+            redisTemplate.opsForValue().set(CATEGORIES_DISTRIBUTION, objectMapper.writeValueAsString(rows));
+        } catch (Exception ignored) {}
         return rows;
     }
 

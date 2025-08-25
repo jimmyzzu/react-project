@@ -28,6 +28,14 @@ spring:
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.apache.kafka.common.serialization.StringSerializer
+  cache:
+    type: redis
+  redis:
+    host: 192.168.54.201
+    port: 30120
+    password: ${REDIS_PASSWORD:0}
+    timeout: 2000ms
+    database: 0
 
 logging:
   level:
