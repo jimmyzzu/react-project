@@ -1,5 +1,6 @@
 package com.example.backendjava.kafka;
 
+import com.example.backendjava.config.KafkaTopics;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -18,7 +19,7 @@ public class CacheDoubleDeleteConsumer {
         this.redisTemplate = redisTemplate;
     }
 
-    @KafkaListener(topics = Topics.CACHE_DOUBLE_DELETE, groupId = "task-app-group")
+    @KafkaListener(topics = KafkaTopics.CACHE_DOUBLE_DELETE, groupId = "task-app-group")
     @Async
     public void onMessage(String key) {
         try {

@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.kafka.core.KafkaTemplate;
 import static com.example.backendjava.config.CacheKeys.CATEGORIES_DISTRIBUTION;
-import static com.example.backendjava.kafka.Topics.CACHE_DOUBLE_DELETE;
+import static com.example.backendjava.config.KafkaTopics.CACHE_DOUBLE_DELETE;
 import com.example.backendjava.dto.TaskStatsDto;
 import com.example.backendjava.entity.Task;
 import com.example.backendjava.repository.TaskRepository;
@@ -119,7 +119,6 @@ public class TaskService {
     }
 
     public List<CategoryDistributionDto> categories() {
-        redisConnectionTest.testConnection();
         try {
             String cached = redisTemplate.opsForValue().get(CATEGORIES_DISTRIBUTION);
             if (cached != null && !cached.isBlank()) {
