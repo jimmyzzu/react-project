@@ -45,3 +45,6 @@ curl -X POST http://localhost:8010/complete \
 - Default model: google/flan-t5-base (small, instruction-tuned, CPU friendly).
 - First run will download the model to the Hugging Face cache (~1GB).
 - To change model or device, set env vars shown above.
+
+## Test snapshot:
+![test](./resource/test.png)

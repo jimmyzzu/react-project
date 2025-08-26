@@ -4,6 +4,11 @@ const api = axios.create({
   baseURL: process.env.REACT_APP_API_BASE_URL || 'http://localhost:8009/api',
 });
 
+// 第二个后端（Python LLM 服务，端口 8010）
+const api2 = axios.create({
+  baseURL: process.env.REACT_APP_API2_BASE_URL || 'http://localhost:8010',
+});
+
 // 请求拦截器
 api.interceptors.request.use(
   (config) => {
@@ -17,6 +22,48 @@ api.interceptors.request.use(
   },
   (error) => {
     console.error('API 请求错误:', error);
+    return Promise.reject(error);
+  }
+);
+
+// api2 拦截器（与 api 保持一致的日志与 ResponseDto 兼容处理）
+api2.interceptors.request.use(
+  (config) => {
+    console.log('API2 请求:', {
+      method: config.method?.toUpperCase(),
+      url: config.url,
+      data: config.data,
+      params: config.params
+    });
+    return config;
+  },
+  (error) => {
+    console.error('API2 请求错误:', error);
+    return Promise.reject(error);
+  }
+);
+
+api2.interceptors.response.use(
+  (response) => {
+    const wrapped = response?.data;
+    const isWrapped = wrapped && typeof wrapped === 'object' && ('status' in wrapped) && ('data' in wrapped);
+    const next = { ...response, data: isWrapped ? wrapped.data : wrapped };
+    console.log('API2 响应成功:', {
+      status: response.status,
+      url: response.config.url,
+      wrappedStatus: isWrapped ? wrapped.status : 'raw',
+      msg: isWrapped ? wrapped.msg : undefined,
+    });
+    return next;
+  },
+  (error) => {
+    const wrapped = error.response?.data;
+    const msg = wrapped && typeof wrapped === 'object' && 'msg' in wrapped ? wrapped.msg : error.message;
+    console.error('API2 响应错误:', {
+      status: error.response?.status,
+      url: error.config?.url,
+      message: msg,
+    });
     return Promise.reject(error);
   }
 );
@@ -96,7 +143,9 @@ export const approvalsApi = {
 };
 
 export const llmApi = {
-  complete: (text) => api.post('/llm/complete', { text }),
+  // complete: (text) => api.post('/llm/complete', { text }),
+  // 直接调用 Python 服务（默认 http://localhost:8010/complete）
+  complete: (text) => api2.post('/generate', { prompt: text }),
 };
 
 export default api;
