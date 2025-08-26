@@ -95,4 +95,8 @@ export const approvalsApi = {
   listByTask: (taskId) => api.get(`/approvals/task/${taskId}`),
 };
 
+export const llmApi = {
+  complete: (text) => api.post('/llm/complete', { text }),
+};
+
 export default api;

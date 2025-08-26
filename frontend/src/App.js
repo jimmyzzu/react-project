@@ -6,6 +6,7 @@ import CalendarPage from './pages/CalendarPage';
 import KanbanPage from './pages/KanbanPage';
 import ActivityStreamPage from './pages/ActivityStreamPage';
 import ApprovalPage from './pages/ApprovalPage';
+import LlmPage from './pages/LlmPage';
 import Main from './Main';
 
 function App() {
@@ -18,6 +19,7 @@ function App() {
         <Route path="/kanban" element={<KanbanPage />} />
         <Route path="/activity" element={<ActivityStreamPage />} />
         <Route path="/approvals" element={<ApprovalPage />} />
+        <Route path="/llm" element={<LlmPage />} />
         <Route path="/main" element={<Main />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
