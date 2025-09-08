@@ -1,4 +1,4 @@
-package com.example.backendjava.test.thread.communicate;
+package com.example.backendjava.test.thread.communicate.mmMonitoring;
 
 public class ProducerConsumerDemo {
     public static void main(String[] args) {

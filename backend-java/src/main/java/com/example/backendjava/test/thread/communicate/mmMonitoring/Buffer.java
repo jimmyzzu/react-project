@@ -1,4 +1,4 @@
-package com.example.backendjava.test.thread.communicate;
+package com.example.backendjava.test.thread.communicate.mmMonitoring;
 
 public class Buffer {
     private int data;

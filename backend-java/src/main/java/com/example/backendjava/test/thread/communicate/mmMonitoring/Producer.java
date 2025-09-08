@@ -1,9 +1,9 @@
-package com.example.backendjava.test.thread.communicate;
+package com.example.backendjava.test.thread.communicate.mmMonitoring;
 
-public class Consumer extends Thread {
+public class Producer extends Thread {
     private Buffer buffer;
 
-    public Consumer(Buffer buffer) {
+    public Producer(Buffer buffer) {
         this.buffer = buffer;
     }
 
@@ -11,8 +11,8 @@ public class Consumer extends Thread {
     public void run() {
         try {
             for (int i = 1; i <= 5; i++) {
-                buffer.consume();
-                Thread.sleep(1000);
+                buffer.produce(i);
+                Thread.sleep(500); // mock processing time
             }
         } catch (InterruptedException e) {
             e.printStackTrace();
