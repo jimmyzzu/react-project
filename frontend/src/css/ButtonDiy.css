@@ -1,0 +1,77 @@
+.custom-button {
+  display: inline-block;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: middle;
+  cursor: pointer;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+  background-color: #007bff;
+  color: white;
+  box-sizing: border-box;
+}
+
+.custom-button:hover:not(:disabled) {
+  background-color: #0069d9;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.custom-button:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.custom-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.custom-button:focus {
+  outline: 2px solid #80bdff;
+  outline-offset: 2px;
+}
+
+/* Secondary button variant */
+.custom-button.secondary {
+  background-color: #6c757d;
+  color: white;
+}
+
+.custom-button.secondary:hover:not(:disabled) {
+  background-color: #5a6268;
+}
+
+/* Success button variant */
+.custom-button.success {
+  background-color: #28a745;
+  color: white;
+}
+
+.custom-button.success:hover:not(:disabled) {
+  background-color: #218838;
+}
+
+/* Danger button variant */
+.custom-button.danger {
+  background-color: #dc3545;
+  color: white;
+}
+
+.custom-button.danger:hover:not(:disabled) {
+  background-color: #c82333;
+}
+
+/* Warning button variant */
+.custom-button.warning {
+  background-color: #ffc107;
+  color: #212529;
+}
+
+.custom-button.warning:hover:not(:disabled) {
+  background-color: #e0a800;
+}

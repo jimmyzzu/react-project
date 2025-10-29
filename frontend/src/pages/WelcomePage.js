@@ -1,5 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import ButtonDiy from '../components/ButtonDiy';
 
 function WelcomePage() {
   const navigate = useNavigate();
@@ -7,6 +8,10 @@ function WelcomePage() {
   const handleNext = () => { navigate('/details'); };
   const goCalendar = () => { navigate('/calendar'); };
   const goKanban = () => { navigate('/kanban'); };
+
+  const handleClick = () => {
+    console.log('Button clicked!');
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
@@ -21,7 +26,7 @@ function WelcomePage() {
               点击下方按钮开始探索我们的核心功能模块。
             </p>
           </div>
-          
+
           <div className="space-y-6">
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <div className="bg-blue-50 rounded-lg p-4 flex-1">
@@ -40,7 +45,7 @@ function WelcomePage() {
                 <p className="text-sm text-gray-600">个性化配置和偏好设置</p>
               </div>
             </div>
-            
+
             <div className="flex flex-wrap gap-3 justify-center">
               <button onClick={handleNext} className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold py-3 px-6 rounded-xl text-base transition-all shadow">
                 功能详情 →
@@ -51,6 +56,11 @@ function WelcomePage() {
               <button onClick={goKanban} className="bg-white border border-gray-200 hover:bg-gray-50 text-gray-800 font-semibold py-3 px-6 rounded-xl text-base transition-all shadow">
                 看板视图
               </button>
+            </div>
+            <div>
+              <ButtonDiy onClick={handleClick}>click me</ButtonDiy>
+              <ButtonDiy onClick={handleClick} disabled>Disabled Buttone</ButtonDiy>
+              <ButtonDiy onClick={handleClick} type='submit'>Submit</ButtonDiy>
             </div>
           </div>
         </div>
